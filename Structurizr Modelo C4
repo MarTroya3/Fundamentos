@@ -1,0 +1,92 @@
+workspace "MODELO C4 PARA GRUPO ACOSTA"
+    model
+
+        tecnico = person "tecnico" "tecnico especializado es medio ambiente llena los reportes"
+
+        Administrador = person "Administrador" "Controla los reportes"
+
+        Plataforma = softwareSystem "Plataforma" {
+
+           mobile = container "PlataformaMobile" "Plataforma Mobile App" "Xamarin.Forms" "Mobile App" {
+                apiLibrary = component "APILibrary" "Library for API access" "HTTP"
+                tripHelper = component "TripHelper" "Show trip information" "C#"
+            }
+
+            api = container "API" "API" "Asp.NET Core" {
+                tripManager = component "TripManager" "Manage trip related information" "C#"
+                persistenceManager = component "PersistenceManager" "Library for SQL database access" "TSQL"
+                authManager = component "AuthManager" "Controla autorización o autenticación" "C#"
+            }
+
+            web = container "PlataformaWeb" "Web App" "Asp.NET Core" "Web App"
+        }
+
+        # External services
+        aad = softwareSystem "Azure Active Directory" "Almacena información de clientes y proyectos" "External Service"
+        asql = softwareSystem "SQL Database" "Almacenar información de los reportes medio ambientales" "Database"
+
+        # Relations
+        tecnico -> mobile "Agrega información a los reportes"
+        Administrador -> web "Gestiona los reportes"
+        
+        apiLibrary -> api "Consume API"
+        web -> api "Consume API"
+        
+        authManager -> aad "lee la información del técnico"
+        persistenceManager -> asql "Lee informacion del técnico"
+
+        tripHelper -> apiLibrary "Read/Write trip information"
+
+        tripManager -> persistenceManager "Access business information"
+        persistenceManager -> authManager "pide acceso a base de datos"
+    }
+
+    views {
+
+        systemContext plataforma "Plataforma" {
+            include *
+            autoLayout
+        }
+
+        container plataforma "PlataformaMobile" "Mobile" {
+            include *
+            autoLayout
+        }
+
+         component mobile "Mobile" "Xamarin Mobile App General 
+            include *
+            autoLayout
+        }
+
+        component api "API" "API General Component Diagram" {
+            include *
+            autoLayout
+        }
+
+        theme default
+
+        styles {
+
+            element "Mobile App" {
+                shape MobileDeviceLandscape
+            }
+            
+            element "Web App" {
+                shape WebBrowser
+            }
+
+            element "External Service" {
+                shape Component
+                background #999999
+            }
+
+            element "Database"{
+                shape Cylinder
+                background #999999
+            }
+
+        }
+
+    }
+
+}
